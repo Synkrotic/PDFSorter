@@ -1,0 +1,122 @@
+--midnight: #101214;
+--black: #1d2125;
+--light_black: #2b2e33;
+--dim_dray: #484b6a;
+--gray: #808080;
+--light_slate_gray: #9394a5;
+--light_gray: #d2d3db;
+--lavender: #d6d8f1;
+--white: #fafafa;
+--cta_color: #357ee4;
+--cta_hover: #335577;
+
+--action_green: #4caf50;
+--hover_green: #3e9042;
+--medium_yellow: #c4b000;
+--hover_yellow: #ff636100;
+--cancel_red: #f44336;
+--hover_red: #c62828;
+
+
+/* Main setup */
+box#main_window {
+    background-color: --lavender;
+}
+
+* {
+    padding: 0px;
+    margin: 0px;
+    border: 0px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: calc(vw // 96)px;
+}
+
+
+/* Header */
+cont#menubar {
+    size: (calc(vw - 10), calc(vw // 40 + 10));
+    position: (5, 5);
+    background-color: transparent;
+}
+btn.menubar_button {
+    background-color: --light_black;
+    color: --white;
+    font-size: calc(vw // 96)px;
+    font-weight: bold;
+    border-radius: 15px;
+    size: (calc(vw // 40), calc(vw // 40));
+}
+btn#close_button { position: (calc(vw - 15 - vw // 40), 5); }
+btn#minimize_button { position: (calc(vw - 20 - vw // 20), 5); }
+btn#config_button {
+    position: (calc(vw - 25 - vw // 10), 5);
+    size: (calc(vw // 20), calc(vw // 40));
+}
+
+btn.menubar_button:hover {
+    background-color: --light_slate_grayaa;
+    border: 3px solid --hover_red;
+    color: --hover_red;
+    font-size: calc(vw / 90)px;
+    font-weight: 1000;
+}
+btn#minimize_button:hover {
+    border: 3px solid --medium_yellow;
+    color: --medium_yellow;
+    font-size: calc(vw // 90)px;
+}
+btn#config_button:hover {
+    border: 3px solid --cta_hover;
+    color: --cta_hover;
+    font-size: calc(vw / 90)px;
+}
+
+
+/* Main section */
+node#action_button_container {
+    size: (calc(vw - 20), calc(vh * 0.3));
+    border-radius: 15px;
+    position: (10, 10);
+}
+btn.action_button {
+    height: calc(vh * 0.3)px;
+    background-color: --cta_color;
+    font-size: calc(vw // 20)px;
+    font-weight: bold;
+    border-radius: 15px;
+}
+btn.action_button:hover {
+    background-color: --cta_hover;
+}
+
+loader#pdf_viewer {
+    size: (calc(vw - 20), calc(vh * 0.7 - 30));
+    position: (10, calc(vh * 0.3 + 20));
+    border-radius: 15px;
+    background-color: --gray;
+}
+
+
+
+
+/* Footer section */
+btn.footer_button {
+    background-color: --light_black;
+    color: --white;
+    font-size: calc(vw // 96)px;
+    font-weight: bold;
+    border-radius: 15px;
+    size: (calc(vw // 40), calc(vw // 40));
+}
+btn.footer_button:hover {
+    background-color: --midnight33;
+    border: 3px solid --midnight;
+    color: --cta_color;
+    font-size: calc(vw / 90)px;
+}
+btn#back_button {
+    position: (calc(vw - 20 - vw // 20), calc(vh - 15 - vw // 40));
+}
+btn#next_button {
+    position: (calc(vw - 15 - vw // 40), calc(vh - 15 - vw // 40));
+}
