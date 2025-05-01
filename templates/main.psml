@@ -2,7 +2,4 @@
     <btn class="action_button" expand="wh" onclick="loadPDF('pdf_viewer', '/home/ubuntu/Downloads/Presentation.pdf')">Kies PDF</btn>
     <btn class="action_button" expand="wh" onclick="print('Sorteer PDF')">Sorteer PDF</btn>
 </node>
-<loader id="pdf_viewer" src="/home/ubuntu/Downloads/Presentation.pdf" type="pdf"></loader>
-
-<btn class="footer_button" id="back_button" onclick="loadPDF('pdf_viewer', pageNumber=-1)">⮜</btn>
-<btn class="footer_button" id="next_button" onclick="loadPDF('pdf_viewer', pageNumber=1)">⮞</btn>
+<box id="pdf_viewer" scrollable="true"></box>

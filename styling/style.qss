@@ -89,11 +89,15 @@ btn.action_button:hover {
     background-color: --cta_hover;
 }
 
-loader#pdf_viewer {
+box#pdf_viewer {
     size: (calc(vw - 20), calc(vh * 0.7 - 30));
     position: (10, calc(vh * 0.3 + 20));
     border-radius: 15px;
     background-color: --gray;
+    qproperty-alignment: AlignCenter;
+}
+loader.pdf_page {
+    size: (calc(vw - 20), calc(vh * 0.7 - 30));
 }
 
 
@@ -103,20 +107,24 @@ loader#pdf_viewer {
 btn.footer_button {
     background-color: --light_black;
     color: --white;
-    font-size: calc(vw // 96)px;
+    font-size: calc(vw // 48)px;
     font-weight: bold;
     border-radius: 15px;
-    size: (calc(vw // 40), calc(vw // 40));
+    size: (calc(vw // 20), calc(vw // 20));
 }
 btn.footer_button:hover {
-    background-color: --midnight33;
     border: 3px solid --midnight;
     color: --cta_color;
-    font-size: calc(vw / 90)px;
 }
 btn#back_button {
-    position: (calc(vw - 20 - vw // 20), calc(vh - 15 - vw // 40));
+    position: (calc(vw - 20 - vw // 10), calc(vh - 15 - vw // 20));
 }
 btn#next_button {
-    position: (calc(vw - 15 - vw // 40), calc(vh - 15 - vw // 40));
+    position: (calc(vw - 15 - vw // 20), calc(vh - 15 - vw // 20));
 }
+
+
+
+
+
+/* Choose PDF section */

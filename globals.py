@@ -3,3 +3,4 @@ import sys
 
 app = QApplication(sys.argv)
 transpiler = None
+window = None

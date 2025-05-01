@@ -1,5 +1,6 @@
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import Qt
+from transpileQSS import loadStyleSheet
 import pymupdf
 import globals
 
@@ -14,22 +15,26 @@ def minimizeSoftware():
         window.showMinimized()
 
 
-def loadPDF(viewerID, filePath=None, pageNumber=0):
-    pdfViewer = globals.transpiler.root.getChildrenBySelector(["loader", viewerID])[0]
-    
+def loadPDFPage(loaderID, filePath=None, pageNumber=0):
+    pdfLoader = globals.transpiler.root.getChildrenBySelector(["loader", loaderID])[0]
+
     try:
-        if pdfViewer is None: raise ValueError(f"PDF viewer with ID {viewerID} not found or not initialized")
-        if filePath: pdfViewer.doc = pymupdf.open(filePath)
+        if pdfLoader is None:
+            print(f"PDF loader with ID {loaderID} not found or not initialized")
+            return
+        if filePath: pdfLoader.doc = pymupdf.open(filePath)
 
-        pageIndex = pdfViewer.currentPage + pageNumber
+        pageIndex = pdfLoader.currentPage + pageNumber
 
-        if pdfViewer.doc is None: raise ValueError("PDF document not loaded")
-        if pageIndex < 0 or pageIndex >= pdfViewer.doc.page_count:
-            raise ValueError(f"Page index out of range {pageIndex} for {pdfViewer.doc.page_count} pages")
-        pdfViewer.currentPage = pageIndex
-        page = pdfViewer.doc[pageIndex]
+        if pdfLoader.doc is None: raise ValueError("PDF document not loaded")
+        if pageIndex < 0 or pageIndex >= pdfLoader.doc.page_count:
+            print(f"Page index out of range {pageIndex} for {pdfLoader.doc.page_count} pages")
+            return
+        pdfLoader.currentPage = pageIndex
+        page = pdfLoader.doc[pageIndex]
     except Exception as e:
-        raise ValueError(f"Error loading PDF: {e}")
+        print(f"Error loading PDF: {e}")
+        return
 
     pix = page.get_pixmap()
     mode = QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
@@ -37,12 +42,47 @@ def loadPDF(viewerID, filePath=None, pageNumber=0):
     
     pixmap = QPixmap.fromImage(image)
     scaled_pixmap = pixmap.scaled(
-        pdfViewer.widget.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        pdfLoader.widget.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
     
-    pdfViewer.widget.setAlignment(Qt.AlignCenter)
-    pdfViewer.widget.setPixmap(scaled_pixmap)
+    pdfLoader.widget.setAlignment(Qt.AlignCenter)
+    pdfLoader.widget.setPixmap(scaled_pixmap)
+    pdfLoader.widget.setFixedSize(scaled_pixmap.size())
 
+def loadPDF(viewerID, filePath):
+    pdfViewer = globals.transpiler.root.getChildrenBySelector(["box", viewerID])[0]
 
+    try:
+        if pdfViewer is None:
+            print(f"PDF viewer with ID {viewerID} not found or not initialized")
+            return
 
+        if len(pdfViewer.children) > 0:
+            for child in pdfViewer.children:
+                child.widget.deleteLater()
+            pdfViewer.children.clear()
 
+        pdfDoc = pymupdf.open(filePath)
+        pageCount = pdfDoc.page_count
+        for pageNum in range(pageCount):
+            data = {
+                "tag": "loader",
+                "parent": pdfViewer,
+                "attributes": {
+                    "id": f"pdf{pageNum}",
+                    "class": "pdf_page",
+                    "src": f"{filePath}:{pageNum}",
+                    "type": "pdf"
+                },
+                "content": ""
+            }
+            elem = globals.transpiler.createElement(data)
+            elem.parent.children.append(elem)
+            elem.load(elem.parent)
+        structure = globals.transpiler.getStringStructure(globals.transpiler.root)
+        print(structure)
+        globals.window.style = loadStyleSheet("style.qss", globals.app)
+        globals.window.setStyleSheet(globals.window.style)
 
+    except Exception as e:
+        print(f"Error loading PDF: {e}")
+        return

@@ -1,9 +1,8 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy, QLabel
-from PySide6.QtGui import QPixmap, QImage
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy, QLabel, QScrollArea
 from PySide6.QtCore import QTimer, Qt
+from software_actions.button_actions import loadPDF, quitSoftware, minimizeSoftware
 from transpileQSS import loadStyleSheet
 from transpiler import Transpiler
-import pymupdf
 import globals
 import sys
 
@@ -15,20 +14,20 @@ class Window(QWidget):
         self.centerWindow()
         self.fullscreenWindow()
         self.setObjectName("main_window")
-        globals.transpiler = Transpiler()
+        globals.transpiler = Transpiler(True)
 
         pageText = f"""{globals.transpiler.readPSML('main.psml')}
             {globals.transpiler.readPSML('choose_pdf.psml')}
             {globals.transpiler.readPSML('top_menu.psml')}"""
-        
+
         globals.transpiler.run(pageText=pageText)
         if globals.transpiler.root is None:
             raise ValueError("Root element not found in the PSML file.")
-        
+
         layout = globals.transpiler.root.load()
         self.setLayout(layout)
 
-        self.style = loadStyleSheet("style.qss", globals.app)
+        self.style = loadStyleSheet("style.qss", globals.app, True)
         self.setStyleSheet(self.style)
 
 
@@ -51,6 +50,6 @@ class Window(QWidget):
 
 
 if __name__ == "__main__":
-    window = Window()
-    window.show()
+    globals.window = Window()
+    globals.window.show()
     sys.exit(globals.app.exec())

@@ -1,8 +1,7 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QGroupBox, QSizePolicy
-from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy
+from PySide6.QtCore import QTimer, Qt
 from software_actions.button_actions import *
 from RuleSet.rulesets import psml_widgets
-from PySide6.QtPdf import QPdfDocument
 import xml.etree.ElementTree as ET
 import uuid
 
@@ -70,18 +69,8 @@ class PSMLElement:
             raise ValueError(f"Unknown widget type: {self.tag}")
         self.widget = pyside_widget()
         if self.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid} = {type(self.widget).__name__}()")
-        
-        if self.tag in ["node", "nd", "container", "cont"]:
-            for key, value in self.attributes.items():
-                if "horizontal" in key.lower() and not "f" in value.lower():
-                    layout = QHBoxLayout()
-                elif isinstance(self.widget, QWidget):
-                    layout = QVBoxLayout()
-            self.widget.setLayout(layout)
-            if self.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.setLayout({type(layout).__name__}())")
-            self.layout = layout
-        else:
-            self.layout = None
+
+        self.manageContainers()
             
         if self.content != "" and not self.content is None:
             if isinstance(self.widget, (QLabel, QPushButton)):
@@ -99,6 +88,36 @@ class PSMLElement:
         return self.widget
 
 
+    def manageContainers(self):
+        if self.tag in ["node", "nd", "container", "cont", "box"]:
+            for key, value in self.attributes.items():
+                if "horizontal" in key.lower() and not "f" in value.lower():
+                    layout = QHBoxLayout()
+                elif isinstance(self.widget, QWidget):
+                    layout = QVBoxLayout()
+
+                if "scrollable" in key.lower() and not "f" in value.lower():
+                    self.container = self.widget
+                    self.widget = QScrollArea()
+                    self.widget.setWidgetResizable(True)
+                    self.widget.setWidget(self.container)
+                    self.container.setLayout(layout)
+                    self.container.layout().setAlignment(Qt.AlignCenter)
+                
+                    if self.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.layout().setAlignment(Qt.AlignCenter)")
+                    if self.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid} = QScrollArea()")
+                    if self.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.setWidgetResizable(True)")
+                    if self.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.setWidget({f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.container)")
+                    if self.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.container.setLayout({type(layout).__name__}())")
+                    return
+                
+            self.widget.setLayout(layout)
+            if self.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.setLayout({type(layout).__name__}())")
+            self.layout = layout
+        else:
+            self.layout = None
+
+
     def setAttributes(self):
         for attr, value in self.attributes.items():
             if "id" in attr:
@@ -112,14 +131,21 @@ class PSMLElement:
 
                 else:
                     raise ValueError(f"onclick attribute is only valid for QPushButton widgets | Not for {self.tag}")
+            
             elif "type" in attr:
                 if "loader" in self.tag or "embed" in self.tag:
                     if "pdf" in value.lower():
                         self.doc = None
                         self.currentPage = 0
                         if self.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid} = None")
-                        # if "src" in self.attributes.keys():
-                            # QTimer.singleShot(0, lambda: loadPDF(self.attributes.get("id"), self.attributes.get("src"), self.currentPage))
+                        if "src" in self.attributes.keys():
+                            self.src = self.attributes.get("src")
+                            pageNum = 0
+                            if ".pdf:" in self.src:
+                                pageNum = int(self.src.split(".pdf:")[-1])
+                                self.src = self.src.split(".pdf:")[0] + ".pdf"
+                            
+                            QTimer.singleShot(0, lambda: loadPDFPage(self.attributes.get("id"), self.src, pageNum))
                     else:
                         raise ValueError(f"Unknown type for {self.tag} widget: {value}")
             self.widget.setProperty(attr, value)
@@ -128,7 +154,12 @@ class PSMLElement:
 
     def setParent(self, parent):
         if not parent: return
-        if hasattr(parent, 'layout') and parent.layout is not None:
+
+        if "scrollable" in parent.attributes.keys() and not "f" in parent.attributes["scrollable"].lower():
+            parent.container.layout().addWidget(self.widget)
+            if self.export: print(f"        {f"{parent.parent.tag}_" if parent.parent else ""}{parent.tag}_{parent.uuid}.container.addWidget({f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid})")
+
+        elif hasattr(parent, 'layout') and parent.layout is not None:
             parent.layout.addWidget(self.widget)
             if self.export: print(f"        {f"{parent.parent.tag}_" if parent.parent else ""}{parent.tag}_{parent.uuid}.layout().addWidget({f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid})")
 
@@ -193,13 +224,13 @@ class Transpiler:
             if id in self.ids:
                 raise ValueError(f"Duplicate ID found: {id}")
             self.ids.append(id)
-        elem = PSMLElement(
-            tag=et_element.tag,
-            parent=parent,
-            attributes=et_element.attrib,
-            content=et_element.text or "",
-            export=self.exportLang
-        )
+        data = {
+            "tag": et_element.tag,
+            "parent": parent,
+            "attributes": et_element.attrib,
+            "content": et_element.text or ""
+        }
+        elem = self.createElement(data)
         for child in et_element:
             child_elem = self.generatePSElements(child, parent=elem)
             elem.children.append(child_elem)
@@ -225,6 +256,22 @@ class Transpiler:
         else: result.rstrip("\n")
         return result
 
+
+    def createElement(self, data):
+        elem = None
+        try:
+            elem = PSMLElement(
+                tag=data.get("tag"),
+                parent=data.get("parent"),
+                attributes=data.get("attributes"),
+                content=data.get("content"),
+                export=self.exportLang
+            )
+        except Exception as e:
+            print(f"Unable to create element: {e}")
+        
+        return elem
+    
 
     def run(self, filename: str=None, pageText=None):
         if filename is None and pageText is None:
