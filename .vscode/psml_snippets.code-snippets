@@ -1,0 +1,54 @@
+{
+	"Cont element": {
+		"prefix": "cont",
+		"body": "<cont>$1</cont>"
+	},
+	"Container element": {
+		"prefix": "container",
+		"body": "<container>$1</container>"
+	},
+	"Node element": {
+		"prefix": "node",
+		"body": "<node>$1</node>"
+	},
+	"Nd element": {
+		"prefix": "nd",
+		"body": "<nd>$1</nd>"
+	},
+	"Box element": {
+		"prefix": "box",
+		"body": "<box>$1</box>"
+	},
+	"Btn element": {
+		"prefix": "btn",
+		"body": "<btn>$1</btn>"
+	},
+	"Button element": {
+		"prefix": "button",
+		"body": "<button>$1</button>"
+	},
+	"Lbl element": {
+		"prefix": "lbl",
+		"body": "<lbl>$1</lbl>"
+	},
+	"Label element": {
+		"prefix": "label",
+		"body": "<label>$1</label>"
+	},
+	"Loader element": {
+		"prefix": "loader",
+		"body": "<loader>$1</loader>"
+	},
+	"Embed element": {
+		"prefix": "embed",
+		"body": "<embed>$1</embed>"
+	},
+	"Dialog element": {
+		"prefix": "dialog",
+		"body": "<dialog>$1</dialog>"
+	},
+	"Popup element": {
+		"prefix": "popup",
+		"body": "<popup>$1</popup>"
+	},
+}

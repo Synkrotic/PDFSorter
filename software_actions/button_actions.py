@@ -1,5 +1,5 @@
 from PySide6.QtGui import QPixmap, QImage
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from transpileQSS import loadStyleSheet
 import pymupdf
 import globals
@@ -13,6 +13,14 @@ def minimizeSoftware():
     window = globals.app.activeWindow()
     if window is not None:
         window.showMinimized()
+
+
+def toggleDialog(dialogID):
+    dialog = [dialog for dialog in globals.transpiler.dialogs if dialogID in dialog.attributes.get("id")][0]
+    if dialog.widget.isVisible():
+        QTimer.singleShot(0, lambda: dialog.widget.reject())
+    else:
+        QTimer.singleShot(0, lambda: dialog.widget.exec())
 
 
 def loadPDFPage(loaderID, filePath=None, pageNumber=0):
@@ -41,8 +49,11 @@ def loadPDFPage(loaderID, filePath=None, pageNumber=0):
     image = QImage(pix.samples, pix.width, pix.height, pix.stride, mode)
     
     pixmap = QPixmap.fromImage(image)
+
+    size = pdfLoader.widget.size()
+    if pixmap.height() > pixmap.width(): size *= 2
     scaled_pixmap = pixmap.scaled(
-        pdfLoader.widget.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
     
     pdfLoader.widget.setAlignment(Qt.AlignCenter)
     pdfLoader.widget.setPixmap(scaled_pixmap)

@@ -1,0 +1,5 @@
+<dialog id="choose_pdf_dialog" title="Kies PDF">
+    <nd id="inner_choose_pdf_container" expand="wh">
+        <btn id="select_pdf_button" onclick="toggleDialog('choose_pdf_dialog')">Close Dialog</btn>
+    </nd>
+</dialog>

@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy, QLabel, QScrollArea
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy, QLabel, QScrollArea, QDialog
 from PySide6.QtCore import QTimer, Qt
-from software_actions.button_actions import loadPDF, quitSoftware, minimizeSoftware
+from software_actions.button_actions import *
 from transpileQSS import loadStyleSheet
 from transpiler import Transpiler
 import globals
@@ -14,21 +14,21 @@ class Window(QWidget):
         self.centerWindow()
         self.fullscreenWindow()
         self.setObjectName("main_window")
-        globals.transpiler = Transpiler(True)
+        globals.transpiler = Transpiler()
 
         pageText = f"""{globals.transpiler.readPSML('main.psml')}
-            {globals.transpiler.readPSML('choose_pdf.psml')}
-            {globals.transpiler.readPSML('top_menu.psml')}"""
+{globals.transpiler.readPSML('choose_pdf.psml')}
+{globals.transpiler.readPSML('top_menu.psml')}"""
 
         globals.transpiler.run(pageText=pageText)
         if globals.transpiler.root is None:
             raise ValueError("Root element not found in the PSML file.")
 
-        layout = globals.transpiler.root.load()
+        layout = globals.transpiler.root.load().widget
         self.setLayout(layout)
 
-        self.style = loadStyleSheet("style.qss", globals.app, True)
-        self.setStyleSheet(self.style)
+        print(globals.transpiler.getStringStructure(globals.transpiler.root))
+        self.setStyling()
 
 
     def centerWindow(self):
@@ -43,7 +43,14 @@ class Window(QWidget):
         screen = globals.app.primaryScreen()
         screenGeometry = screen.geometry()
         self.setGeometry(screenGeometry)
-        self.showFullScreen()
+        if globals.fullscreen: self.showFullScreen()
+
+    
+    def setStyling(self):
+        self.style = loadStyleSheet("style.qss")
+        self.setStyleSheet(self.style)
+        for dialog in globals.transpiler.dialogs:
+            dialog.widget.setStyleSheet(self.style)
 
 
 

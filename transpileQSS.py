@@ -2,7 +2,7 @@ from RuleSet.rulesets import psml_widgets
 import globals
 import re
 
-def loadStyleSheet(filePath, app, export=False) -> None:
+def loadStyleSheet(filePath) -> None:
     if filePath is None:
         return;
 
@@ -14,7 +14,7 @@ def loadStyleSheet(filePath, app, export=False) -> None:
 
 
     # Set screen sizing in style
-    screen = app.primaryScreen()
+    screen = globals.app.primaryScreen()
     screenGeometry = screen.availableGeometry()
     screenWidth = screenGeometry.width()
     screenHeight = screenGeometry.height()
@@ -67,10 +67,9 @@ def loadStyleSheet(filePath, app, export=False) -> None:
             elements = globals.transpiler.root.getChildrenBySelector(selector.split(splitter)[:2])
             for element in elements:
                 if element is not None:
-                    element.widget.setFixedWidth(w)
-                    element.widget.setFixedHeight(h)
-                    if export: print(f"        {f"{element.parent.tag}_" if element.parent else ""}{element.tag}_{element.uuid}.setFixedHeight({h})")
-                    if export: print(f"        {f"{element.parent.tag}_" if element.parent else ""}{element.tag}_{element.uuid}.setFixedWidth({w})")
+                    element.widget.setFixedSize(w, h)
+                    if globals.export: print(f"        {f"{element.parent.tag}_" if element.parent else ""}{element.tag}_{element.uuid}.setFixedHeight({h})")
+                    if globals.export: print(f"        {f"{element.parent.tag}_" if element.parent else ""}{element.tag}_{element.uuid}.setFixedWidth({w})")
             style = style.replace(f"size: ({w}, {h});", "")
 
 
@@ -90,6 +89,6 @@ def loadStyleSheet(filePath, app, export=False) -> None:
     for class_name in classes:
         style = style.replace(f".{class_name}", f"[class='{class_name}']")
 
-    if export: print(style)
+    if globals.export: print(style)
 
     return style

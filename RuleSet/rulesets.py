@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QLabel
+from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QDialog
 
 
 
@@ -19,4 +19,7 @@ psml_widgets = {
 
     "loader": QLabel,
     "embed": QLabel,
+
+    "dialog": QDialog,
+    "popup": QDialog,
 }

@@ -4,3 +4,13 @@ import sys
 app = QApplication(sys.argv)
 transpiler = None
 window = None
+
+
+
+
+
+
+
+# Config
+export = True
+fullscreen = False
