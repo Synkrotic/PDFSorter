@@ -1,11 +1,11 @@
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import Qt, QTimer
 from transpileQSS import loadStyleSheet
-import pymupdf
-import globals
+import pymupdf, globals, os, platform, subprocess
 
 
 
+# Built in actions
 def quitSoftware():
     globals.app.quit()
 
@@ -23,6 +23,10 @@ def toggleDialog(dialogID):
         QTimer.singleShot(0, lambda: dialog.widget.exec())
 
 
+
+
+
+# Maybe built in?
 def loadPDFPage(loaderID, filePath=None, pageNumber=0):
     pdfLoader = globals.transpiler.root.getChildrenBySelector(["loader", loaderID])[0]
 
@@ -61,16 +65,14 @@ def loadPDFPage(loaderID, filePath=None, pageNumber=0):
 
 def loadPDF(viewerID, filePath):
     pdfViewer = globals.transpiler.root.getChildrenBySelector(["box", viewerID])[0]
+    pdfViewer.container.layout().setAlignment(Qt.AlignCenter)
 
     try:
         if pdfViewer is None:
             print(f"PDF viewer with ID {viewerID} not found or not initialized")
             return
 
-        if len(pdfViewer.children) > 0:
-            for child in pdfViewer.children:
-                child.widget.deleteLater()
-            pdfViewer.children.clear()
+        pdfViewer.deleteChildren()
 
         pdfDoc = pymupdf.open(filePath)
         pageCount = pdfDoc.page_count
@@ -89,11 +91,71 @@ def loadPDF(viewerID, filePath):
             elem = globals.transpiler.createElement(data)
             elem.parent.children.append(elem)
             elem.load(elem.parent)
-        structure = globals.transpiler.getStringStructure(globals.transpiler.root)
-        print(structure)
-        globals.window.style = loadStyleSheet("style.qss", globals.app)
+        globals.window.style = loadStyleSheet("style.qss")
         globals.window.setStyleSheet(globals.window.style)
 
     except Exception as e:
         print(f"Error loading PDF: {e}")
+        return
+    
+
+
+
+
+# Custom button actions
+def loadPDFOptions():
+    pdfs = [str(f) for f in os.listdir(globals.inputDirectory) if f.endswith('.pdf')]
+    container = globals.transpiler.root.getChildrenBySelector(["nd", "pdf_selections_container"])[0]
+    
+    if container is None:
+        print("PDF selection container not found")
+        return
+    
+    container.deleteChildren()
+
+    for pdf in pdfs:
+        elementData = {
+            "tag": "btn",
+            "parent": container,
+            "attributes": {
+                "class": "pdf_selection",
+                "id": f"{"selected_pdf" if pdf in globals.selectedPDF else ""}",
+                "onclick": f"setSelectedPDF('{globals.inputDirectory}/{pdf}')",
+            },
+            "content": pdf,
+        }
+        elem = globals.transpiler.createElement(elementData)
+        elem.parent.children.append(elem)
+        elem.load(container)
+        elem.widget.style = globals.window.style
+        elem.widget.setStyleSheet(globals.window.style)
+    globals.window.style = loadStyleSheet("style.qss")
+    globals.window.setStyleSheet(globals.window.style)
+
+def setSelectedPDF(pdfPath):
+    globals.selectedPDF = pdfPath
+    loadPDF("pdf_viewer", pdfPath)
+    dialog = globals.transpiler.root.getChildrenBySelector(["dialog", "choose_pdf_dialog"])[0]
+    dialog.widget.accept()
+
+
+def printFile(path):
+    try:
+        system = platform.system()
+        if not os.path.exists(path):
+            print(f"File does not exist: {path}")
+            return
+        if system == "Windows":
+            os.startfile(path, "print")
+
+        elif system == "Darwin":  # MacOS
+            subprocess.run(["lpr", path])
+
+        elif system == "Linux":
+            subprocess.run(["lpr", path])
+
+        else:
+            raise NotImplementedError(f"Printing not supported on: {system}")
+    except Exception as e:
+        print(f"Error printing file: {e}")
         return

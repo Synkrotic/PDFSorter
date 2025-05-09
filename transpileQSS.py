@@ -10,7 +10,7 @@ def loadStyleSheet(filePath) -> None:
         filePath = "styling/" + filePath
 
     with open(filePath, "r") as file:
-        style = file.read().lower()
+        style = file.read()
 
 
     # Set screen sizing in style
@@ -40,12 +40,15 @@ def loadStyleSheet(filePath) -> None:
         style = style.replace(var_name, var_value)
 
 
+
     # Set positions
     if not globals.transpiler is None:
+        tempStyle = re.sub(r"\[[^\[\]]+?\]", "", style)
         pattern = r'(?P<selector>\w+(?:[#.][\w-]+)?)\s*\{[^}]*?position:\s*\((?P<position>[\d\s,]+)\);'
-        matches = re.finditer(pattern, style)
+        matches = re.finditer(pattern, tempStyle)
         for match in matches:
             selector = match.group('selector')
+            selector = re.sub(r"\[[^\[\]]+?\]", "", selector)
             position = match.group('position').split(',')
             x, y = int(position[0]), int(position[1])
             splitter = "." if "." in selector else "#"
@@ -58,7 +61,7 @@ def loadStyleSheet(filePath) -> None:
 
         # Set size
         pattern = r'(?P<selector>\w+(?:[#.][\w-]+)?)\s*\{[^}]*?size:\s*\((?P<size>[\d\s,]+)\);'
-        matches = re.finditer(pattern, style)
+        matches = re.finditer(pattern, tempStyle)
         for match in matches:
             selector = match.group('selector')
             size = match.group('size').split(',')
@@ -75,13 +78,16 @@ def loadStyleSheet(filePath) -> None:
 
     # Use PSML Element names
     for element, widget in psml_widgets.items():
-        pattern = rf"(?m)^\s*{element}\b"
-        if isinstance(widget, list):
-            for w in widget:
-                style = re.sub(pattern, w.__name__, style)
+        if "[scrollable='true']" in element and hasattr(widget, "__name__"):
+            pattern = rf"(?m)^\s*{re.escape(element)}\b"
+            style = re.sub(pattern, "QScrollArea", style)
         else:
-            style = re.sub(pattern, widget.__name__, style)
-    style = style.replace("PDFViewer", "QWidget")
+            pattern = rf"(?m)^\s*{re.escape(element)}\b"
+            if isinstance(widget, list):
+                for w in widget:
+                    style = re.sub(pattern, w.__name__, style)
+            else:
+                style = re.sub(pattern, widget.__name__, style)
 
 
     # Make classes work

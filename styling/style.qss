@@ -94,7 +94,6 @@ box#pdf_viewer {
     position: (20, calc(vh * 0.3 + 20));
     border-radius: 15px;
     background-color: --gray;
-    qproperty-alignment: AlignCenter;
 }
 loader.pdf_page {
     size: (calc(vw - 20), calc(vh * 0.7 - 30));
@@ -103,48 +102,36 @@ loader.pdf_page {
 
 
 
-/* Footer section */
-btn.footer_button {
-    background-color: --light_black;
-    color: --white;
-    font-size: calc(vw // 48)px;
-    font-weight: bold;
-    border-radius: 15px;
-    size: (calc(vw // 20), calc(vw // 20));
-}
-btn.footer_button:hover {
-    border: 3px solid --midnight;
-    color: --cta_color;
-}
-btn#back_button {
-    position: (calc(vw - 20 - vw // 10), calc(vh - 15 - vw // 20));
-}
-btn#next_button {
-    position: (calc(vw - 15 - vw // 20), calc(vh - 15 - vw // 20));
-}
-
-
-
-
 
 /* Choose PDF section */
-btn#select_pdf_button {
-    background-color: --light_black;
-    color: --white;
-    font-size: calc(vw // 48)px;
-    font-weight: bold;
-    border-radius: 15px;
-    size: (calc(vw // 20), calc(vw // 20));
-}
-
-nd#inner_choose_pdf_container {
-    size: (calc(vw // 3), vh)
-    width: calc(vw // 3);
-    height: vh;
-    background-color: --light_black;
-}
-
 dialog#choose_pdf_dialog {
     background-color: --lavender;
-    size: (calc(vw // 2), vh);
+    size: (calc(vw // 3), vh);
+}
+
+nd#pdf_selections_container {
+    background-color: --lavender;
+    qproperty-alignment: AlignTop;
+}
+
+btn.pdf_selection {
+    color: --midnight;
+    font-size: calc(vw // 70)px;
+    font-weight: bold;
+    border-radius: 15px;
+    size: (calc(vw // 3 - 50), calc(vw // 48));
+    padding: 5px;
+    text-align: left;
+}
+btn.pdf_selection:hover {
+    background-color: --light_slate_gray;
+    border: 3px solid --action_green;
+    color: --light_black;
+    font-weight: 1000;
+}
+btn.pdf_selection#selected_pdf {
+    background-color: --light_slate_gray;
+    border: 3px solid --action_green;
+    color: --hover_green;
+    font-weight: 1000;
 }

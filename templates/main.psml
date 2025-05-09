@@ -1,5 +1,8 @@
 <node id="action_button_container" horizontal="true">
-    <btn class="action_button" expand="wh" onclick="toggleDialog('choose_pdf_dialog')">Kies PDF</btn>
+    <btn
+        class="action_button"
+        expand="wh"
+        onclick="(lambda: (toggleDialog('choose_pdf_dialog'), loadPDFOptions()))()">Kies PDF</btn>
     <btn class="action_button" expand="wh" onclick="loadPDF('pdf_viewer', '/home/ubuntu/Downloads/Presentation.pdf')">Sorteer PDF</btn>
 </node>
-<box id="pdf_viewer" scrollable="true"></box>
+<box id="pdf_viewer" scrollable="true" alignment="center"></box>

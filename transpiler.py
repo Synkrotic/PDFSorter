@@ -34,17 +34,27 @@ class PSMLElement:
         return f"{str(type(self.widget)).split('.')[-1].replace("'>", "") if self.widget else ""} | {selector}{[f"{attr}:{val}" for attr, val in self.attributes.items() if attr not in ["class", "id"]]}"
 
 
-    def getChildrenBySelector(self, selector, parent=None) -> list:
+    def getChildrenBySelector(self, selector=None, parent=None, indent=0) -> list:
         if parent is None:
             parent = self
         
         matching = []
 
         for child in parent.children:
-            if child.tag == selector[0] and (child.widget.objectName() == selector[1] or child.attributes.get("class") == selector[1]):
-                matching.append(child)
+            if selector:
+                if child.tag == selector[0] and (child.widget.objectName() == selector[1] or child.attributes.get("class") == selector[1]):
+                    matching.append(child)
+            else: matching.append(child)
             
-            matching.extend(self.getChildrenBySelector(selector, child))
+            matching.extend(self.getChildrenBySelector(selector, child, indent + 1))
+        if indent == 0:
+            for dialog in globals.transpiler.dialogs:
+                if selector:
+                    if dialog.tag == selector[0] and (dialog.widget.objectName() == selector[1] or dialog.attributes.get("class") == selector[1]):
+                        matching.append(dialog)
+                else: matching.append(dialog)
+
+                matching.extend(self.getChildrenBySelector(selector, dialog, indent + 1))
         return matching
 
 
@@ -110,18 +120,23 @@ class PSMLElement:
                     self.widget.setWidgetResizable(True)
                     self.widget.setWidget(self.container)
                     self.container.setLayout(layout)
-                    self.container.layout().setAlignment(Qt.AlignCenter)
                 
                     if globals.export:
-                        print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.layout().setAlignment(Qt.AlignCenter)")
                         print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid} = QScrollArea()")
                         print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.setWidgetResizable(True)")
                         print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.setWidget({f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.container)")
                         print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.container.setLayout({type(layout).__name__}())")
+                    if not self.tag in ["dialog", "popup"]:
+                        self.container.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
+                        if globals.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)")
+                    else:
+                        self.container.layout().setAlignment(Qt.AlignCenter)
+                        if globals.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.layout().setAlignment(Qt.AlignCenter)")
                     return
             self.widget.setLayout(layout)
-            if globals.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.setLayout({type(layout).__name__}())")
             self.layout = layout
+            if globals.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.setLayout({type(layout).__name__}())")
+            if globals.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)")
         else:
             self.layout = None
 
@@ -134,7 +149,7 @@ class PSMLElement:
 
             elif "onclick" in attr:
                 if isinstance(self.widget, QPushButton):
-                    self.widget.clicked.connect(lambda: eval(value))
+                    self.widget.clicked.connect(lambda: exec(value))
                     if globals.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.clicked.connect(lambda: {value.replace("'", '"')})")
 
                 else:
@@ -151,8 +166,7 @@ class PSMLElement:
                             pageNum = 0
                             if ".pdf:" in self.src:
                                 pageNum = int(self.src.split(".pdf:")[-1])
-                                self.src = self.src.split(".pdf:")[0] + ".pdf"
-                            
+                                self.src = self.src.split(".pdf:")[0] + ".pdf"                            
                             QTimer.singleShot(0, lambda: loadPDFPage(self.attributes.get("id"), self.src, pageNum))
                     else:
                         raise ValueError(f"Unknown type for {self.tag} widget: {value}")
@@ -223,6 +237,14 @@ class PSMLElement:
         else:
             raise ValueError(f"setPosition is not valid for {self.tag} widgets")
 
+
+    def deleteChildren(self):
+        if len(self.children) > 0:
+            for child in self.children:
+                child.widget.setFixedHeight(0)
+                child.widget.deleteLater()
+                child.widget.close()
+            self.children.clear()
 
 
 
@@ -296,7 +318,7 @@ class Transpiler:
     def run(self, filename: str=None, pageText=None):
         if filename is None and pageText is None:
             raise ValueError("Either filename or pageText must be provided.")
-        mainPage: str = self.readPSML(filename).strip() if filename else pageText.strip()
+        mainPage: str = self.readPSML(filename) if filename else pageText
         try:
             root_et = ET.fromstring(mainPage)
             if root_et.tag != "root":
