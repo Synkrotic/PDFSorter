@@ -2,8 +2,7 @@ from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLa
 from PySide6.QtCore import QTimer, Qt
 from software_actions.button_actions import *
 from RuleSet.rulesets import psml_widgets
-import xml.etree.ElementTree as ET
-import uuid
+import xml.etree.ElementTree as ET, uuid, re, globals
 
 
 
@@ -280,7 +279,7 @@ class Transpiler:
     def readPSML(self, filename) -> str:
         if not "templates/" in filename:
             filename = "templates/" + filename
-        with open(filename, 'r') as file:
+        with open(filename, 'r', encoding='utf-8') as file:
             return file.read()
         return "Unable to read file!"
 
@@ -293,11 +292,12 @@ class Transpiler:
             result += self.getStringStructure(child, indent + 1)
         else: result.rstrip("\n")
         if indent == 0:
-            result += "\n\n"
+            result += "\n"
             for dialog in self.dialogs:
                 result += f" => {dialog.printDebug()}\n"
                 for child in dialog.children:
                     result += self.getStringStructure(child, 1)
+                result += "\n"
         return result
 
 

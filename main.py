@@ -3,8 +3,7 @@ from PySide6.QtCore import QTimer, Qt
 from software_actions.button_actions import *
 from transpileQSS import loadStyleSheet
 from transpiler import Transpiler
-import globals
-import sys
+import globals, sys, os
 
 
 class Window(QWidget):
@@ -16,9 +15,13 @@ class Window(QWidget):
         self.setObjectName("main_window")
         globals.transpiler = Transpiler()
 
-        pageText = f"""{globals.transpiler.readPSML('main.psml')}
-{globals.transpiler.readPSML('choose_pdf.psml')}
-{globals.transpiler.readPSML('top_menu.psml')}"""
+        pageText = ""
+        template_folder = os.path.join(os.path.dirname(__file__), "templates")
+        for filename in os.listdir(template_folder):
+            filepath = os.path.join(template_folder, filename)
+            if os.path.isfile(filepath) and filename.endswith(".psml"):
+                pageText += f"{globals.transpiler.readPSML(filename)}\n"
+                
 
         globals.transpiler.run(pageText=pageText)
         if globals.transpiler.root is None:

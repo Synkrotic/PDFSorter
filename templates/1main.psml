@@ -3,7 +3,10 @@
         class="action_button"
         expand="wh"
         onclick="(lambda: (toggleDialog('choose_pdf_dialog'), loadPDFOptions()))()">Kies PDF</btn>
-    <btn class="action_button" expand="wh" onclick="loadPDF('pdf_viewer', '/home/ubuntu/Downloads/Presentation.pdf')">Sorteer PDF</btn>
+    <btn
+        class="action_button"
+        expand="wh"
+        onclick="(lambda: (toggleDialog('folder_management_dialog'), loadSortingDialog()))()">Sorteer PDF</btn>
 </node>
 <box id="pdf_viewer" scrollable="true" alignment="center"></box>
 <btn id="print_button" onclick="printFile(globals.selectedPDF)">🖶</btn>

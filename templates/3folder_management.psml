@@ -1,0 +1,12 @@
+<dialog id="folder_management_dialog" title="Sorteer Bestand" horizontal="true">
+    <nd id="folder_list" expand="wh"></nd>
+    <nd id="folder_details_container" expand="wh">
+        <box id="selected_details_container" expand="wh">
+            <lbl class="detail_label">Geselecteerde map:</lbl>
+            <lbl class="detail_label" id="selected_folder_detail">{{ globals.selectedFolder }}</lbl>
+            <lbl class="detail_label">Geselecteerde PDF:</lbl>
+            <lbl class="detail_label" id="selected_pdf_detail">{{ globals.selectedPDF }}</lbl>
+        </box>
+        <box id="new_folder_creation_container" expand="wh"></box>
+    </nd>
+</dialog>

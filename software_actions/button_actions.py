@@ -146,7 +146,7 @@ def printFile(path):
             print(f"File does not exist: {path}")
             return
         if system == "Windows":
-            os.startfile(path, "print")
+            os.startfile(path)
 
         elif system == "Darwin":  # MacOS
             subprocess.run(["lpr", path])
@@ -159,3 +159,17 @@ def printFile(path):
     except Exception as e:
         print(f"Error printing file: {e}")
         return
+    
+
+# Load sorting dialog
+def loadSortingDialog():
+    toggleDialog("folder_management_dialog")
+
+    # Create folder options
+    
+
+    # Set details
+    selPDFLbl = globals.transpiler.root.getChildrenBySelector(["lbl", "selected_pdf_detail"])[0]
+    selFldrLbl = globals.transpiler.root.getChildrenBySelector(["lbl", "selected_folder_detail"])[0]
+    selPDFLbl.widget.setText(f"{globals.selectedPDF.split('/')[-1] if globals.selectedPDF else 'Geen PDF geselecteerd!'}")
+    selFldrLbl.widget.setText(f"{globals.selectedFolder.split('/')[-1] if globals.selectedFolder else 'Geen map geselecteerd!'}")

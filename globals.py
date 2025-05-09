@@ -18,5 +18,7 @@ fullscreen = False
 selectedPDF = ""
 selectedFolder = ""
 
-inputDirectory = "/home/ubuntu/Downloads"
-outputDirectory = "/home/ubuntu/Documents/PDF_Sorter_Output"
+# inputDirectory = "/home/ubuntu/Downloads"
+inputDirectory = "C:/Users/janne/Downloads"
+# outputDirectory = "/home/ubuntu/Documents/PDF_Sorter_Output"
+outputDirectory = "C:/Users/janne/Documents/PDF_Sorter_Output"

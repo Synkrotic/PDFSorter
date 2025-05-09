@@ -107,7 +107,7 @@ btn#print_button {
     font-size: calc(vw // 40)px;
     font-weight: bold;
     border-radius: 15px;
-    position: (calc(vw - 20 - vw // 20), calc(vh - vw // 15 - 25));
+    position: (calc(vw - 20 - vw // 20), calc(vh - vw // 15 - 20));
     size: (calc(vw // 20), calc(vw // 20));
 }
 btn#print_button:hover {
@@ -152,4 +152,26 @@ btn.pdf_selection#selected_pdf {
     border: 3px solid --action_green;
     color: --hover_green;
     font-weight: 1000;
+}
+
+
+
+
+/* Folder management section */
+dialog#folder_management_dialog {
+    background-color: --lavender;
+    size: (calc(vw // 2), vh);
+}
+
+nd#folder_list {
+    background-color: red;
+}
+nd#folder_details_container {
+    background-color: yellow;
+}
+box#selected_details_container {
+    background-color: blue;
+}
+box#new_folder_creation_container {
+    background-color: green;
 }
