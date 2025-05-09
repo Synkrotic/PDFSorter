@@ -1,6 +1,5 @@
 <cont id="menubar" horizontal="true">
-    <btn class="menubar_button" id="close_button" onclick="quitSoftware()">⨯</btn>
-    <btn class="menubar_button" id="minimize_button" onclick="minimizeSoftware()">🗕</btn>
+    <btn class="menubar_button" id="close_button" onclick="quitSoftware()">⛌</btn>
+    <btn class="menubar_button" id="minimize_button" onclick="minimizeSoftware()">━</btn>
     <btn class="menubar_button" id="config_button" onclick="print('CONFIG')">CONFIG</btn>
-    <btn class="menubar_button" id="print_button" onclick="printFile(globals.selectedPDF)">⨯</btn>
 </cont>

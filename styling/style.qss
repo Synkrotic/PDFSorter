@@ -46,7 +46,10 @@ btn.menubar_button {
     border-radius: 15px;
     size: (calc(vw // 40), calc(vw // 40));
 }
-btn#close_button { position: (calc(vw - 15 - vw // 40), 5); }
+btn#close_button { 
+    position: (calc(vw - 15 - vw // 40), 5);
+    font-size: calc(vw // 85)px;
+}
 btn#minimize_button { position: (calc(vw - 20 - vw // 20), 5); }
 btn#config_button {
     position: (calc(vw - 25 - vw // 10), 5);
@@ -97,6 +100,21 @@ box#pdf_viewer {
 }
 loader.pdf_page {
     size: (calc(vw - 20), calc(vh * 0.7 - 30));
+}
+btn#print_button {
+    background-color: --light_black;
+    color: --white;
+    font-size: calc(vw // 40)px;
+    font-weight: bold;
+    border-radius: 15px;
+    position: (calc(vw - 20 - vw // 20), calc(vh - vw // 15 - 25));
+    size: (calc(vw // 20), calc(vw // 20));
+}
+btn#print_button:hover {
+    background-color: --cta_color;
+    border: 3px solid --light_black;
+    font-size: calc(vw / 35)px;
+    font-weight: 1000;
 }
 
 
