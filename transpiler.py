@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLa
 from PySide6.QtCore import QTimer, Qt
 from software_actions.button_actions import *
 from RuleSet.rulesets import psml_widgets
-import xml.etree.ElementTree as ET, uuid, re, globals
+import xml.etree.ElementTree as ET, uuid, globals, threading
 
 
 
@@ -40,7 +40,7 @@ class PSMLElement:
         matching = []
 
         for child in parent.children:
-            if selector:
+            if selector and hasattr(child, "widget") and hasattr(child.widget, "objectName"):
                 if child.tag == selector[0] and (child.widget.objectName() == selector[1] or child.attributes.get("class") == selector[1]):
                     matching.append(child)
             else: matching.append(child)
@@ -48,7 +48,7 @@ class PSMLElement:
             matching.extend(self.getChildrenBySelector(selector, child, indent + 1))
         if indent == 0:
             for dialog in globals.transpiler.dialogs:
-                if selector:
+                if selector and hasattr(dialog, "widget") and hasattr(dialog.widget, "objectName"):
                     if dialog.tag == selector[0] and (dialog.widget.objectName() == selector[1] or dialog.attributes.get("class") == selector[1]):
                         matching.append(dialog)
                 else: matching.append(dialog)
@@ -148,7 +148,7 @@ class PSMLElement:
 
             elif "onclick" in attr:
                 if isinstance(self.widget, QPushButton):
-                    self.widget.clicked.connect(lambda: exec(value))
+                    self.widget.clicked.connect(lambda: eval(value))
                     if globals.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.clicked.connect(lambda: {value.replace("'", '"')})")
 
                 else:
@@ -165,7 +165,7 @@ class PSMLElement:
                             pageNum = 0
                             if ".pdf:" in self.src:
                                 pageNum = int(self.src.split(".pdf:")[-1])
-                                self.src = self.src.split(".pdf:")[0] + ".pdf"                            
+                                self.src = self.src.split(".pdf:")[0] + ".pdf"
                             QTimer.singleShot(0, lambda: loadPDFPage(self.attributes.get("id"), self.src, pageNum))
                     else:
                         raise ValueError(f"Unknown type for {self.tag} widget: {value}")

@@ -129,25 +129,24 @@ dialog#choose_pdf_dialog {
 
 nd#pdf_selections_container {
     background-color: --lavender;
-    qproperty-alignment: AlignTop;
 }
 
-btn.pdf_selection {
+btn.list_selection_option {
     color: --midnight;
     font-size: calc(vw // 70)px;
     font-weight: bold;
     border-radius: 15px;
-    size: (calc(vw // 3 - 50), calc(vw // 48));
+    size: (calc(vw // 3 - 50), calc(vw // 40));
     padding: 5px;
     text-align: left;
 }
-btn.pdf_selection:hover {
+btn.list_selection_option:hover {
     background-color: --light_slate_gray;
     border: 3px solid --action_green;
     color: --light_black;
     font-weight: 1000;
 }
-btn.pdf_selection#selected_pdf {
+btn.list_selection_option#selected {
     background-color: --light_slate_gray;
     border: 3px solid --action_green;
     color: --hover_green;
@@ -164,14 +163,22 @@ dialog#folder_management_dialog {
 }
 
 nd#folder_list {
-    background-color: red;
+    background-color: --lavender;
 }
+
 nd#folder_details_container {
-    background-color: yellow;
+    alignment: top left;
 }
 box#selected_details_container {
-    background-color: blue;
 }
 box#new_folder_creation_container {
-    background-color: green;
+}
+lbl.detail_header {
+    font-size: calc(vw // 50);
+}
+lbl.detail_label {
+    margin: 0px;
+    padding: 0px;
+    color: red;
+    font-size: calc(vw // 40);
 }

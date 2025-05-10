@@ -8,5 +8,5 @@
         expand="wh"
         onclick="(lambda: (toggleDialog('folder_management_dialog'), loadSortingDialog()))()">Sorteer PDF</btn>
 </node>
-<box id="pdf_viewer" scrollable="true" alignment="center"></box>
+<box id="pdf_viewer" scrollable="true"></box>
 <btn id="print_button" onclick="printFile(globals.selectedPDF)">🖶</btn>

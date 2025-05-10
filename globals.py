@@ -12,7 +12,7 @@ window = None
 
 
 # Config
-export = False
+export = True
 fullscreen = False
 
 selectedPDF = ""

@@ -1,3 +1,4 @@
+from PySide6.QtCore import Qt
 from RuleSet.rulesets import psml_widgets
 import globals
 import re
@@ -74,20 +75,38 @@ def loadStyleSheet(filePath) -> None:
                     if globals.export: print(f"        {f"{element.parent.tag}_" if element.parent else ""}{element.tag}_{element.uuid}.setFixedHeight({h})")
                     if globals.export: print(f"        {f"{element.parent.tag}_" if element.parent else ""}{element.tag}_{element.uuid}.setFixedWidth({w})")
             style = style.replace(f"size: ({w}, {h});", "")
+        
+
+        # Change alignment
+        pattern = r'(?P<selector>\w+(?:[#.][\w-]+)?)\s*\{[^}]*?alignment:\s*(?P<align>[\w\s,]+);'
+        matches = re.finditer(pattern, tempStyle)
+        for match in matches:
+            selector = match.group('selector')
+            align = match.group('align').split(' ')
+            align = [a.strip() for a in align if a.strip() and a in ["left", "right", "top", "bottom"]]
+            alignment = 0
+            for a in align:
+                match a:
+                    case "top": alignment |= Qt.AlignTop
+                    case "bottom": alignment |= Qt.AlignBottom
+                    case "left": alignment |= Qt.AlignLeft
+                    case "right": alignment |= Qt.AlignRight
+            splitter = "." if "." in selector else "#"
+            elements = globals.transpiler.root.getChildrenBySelector(selector.split(splitter)[:2])
+            for element in elements:
+                if element is not None:
+                    element.widget.layout().setAlignment(alignment)
+                    if globals.export: print(f"        {f"{element.parent.tag}_" if element.parent else ""}{element.tag}_{element.uuid}.setAlignment({alignment})")
 
 
     # Use PSML Element names
     for element, widget in psml_widgets.items():
-        if "[scrollable='true']" in element and hasattr(widget, "__name__"):
-            pattern = rf"(?m)^\s*{re.escape(element)}\b"
-            style = re.sub(pattern, "QScrollArea", style)
+        pattern = rf"(?m)^\s*{re.escape(element)}\b"
+        if isinstance(widget, list):
+            for w in widget:
+                style = re.sub(pattern, w.__name__, style)
         else:
-            pattern = rf"(?m)^\s*{re.escape(element)}\b"
-            if isinstance(widget, list):
-                for w in widget:
-                    style = re.sub(pattern, w.__name__, style)
-            else:
-                style = re.sub(pattern, widget.__name__, style)
+            style = re.sub(pattern, widget.__name__, style)
 
 
     # Make classes work

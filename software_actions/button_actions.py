@@ -1,7 +1,7 @@
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import Qt, QTimer
 from transpileQSS import loadStyleSheet
-import pymupdf, globals, os, platform, subprocess
+import pymupdf, globals, os, platform, subprocess, threading
 
 
 
@@ -48,20 +48,23 @@ def loadPDFPage(loaderID, filePath=None, pageNumber=0):
         print(f"Error loading PDF: {e}")
         return
 
-    pix = page.get_pixmap()
-    mode = QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
-    image = QImage(pix.samples, pix.width, pix.height, pix.stride, mode)
-    
-    pixmap = QPixmap.fromImage(image)
+    def load():
+        pix = page.get_pixmap()
+        mode = QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
+        image = QImage(pix.samples, pix.width, pix.height, pix.stride, mode)
 
-    size = pdfLoader.widget.size()
-    if pixmap.height() > pixmap.width(): size *= 2
-    scaled_pixmap = pixmap.scaled(
-        size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-    
-    pdfLoader.widget.setAlignment(Qt.AlignCenter)
-    pdfLoader.widget.setPixmap(scaled_pixmap)
-    pdfLoader.widget.setFixedSize(scaled_pixmap.size())
+        pixmap = QPixmap.fromImage(image)
+
+        size = pdfLoader.widget.size()
+        if pixmap.height() > pixmap.width(): size *= 2
+        scaled_pixmap = pixmap.scaled(
+            size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+        pdfLoader.widget.setAlignment(Qt.AlignCenter)
+        pdfLoader.widget.setPixmap(scaled_pixmap)
+        pdfLoader.widget.setFixedSize(scaled_pixmap.size())
+    thread = threading.Thread(target=load)
+    thread.start()
 
 def loadPDF(viewerID, filePath):
     pdfViewer = globals.transpiler.root.getChildrenBySelector(["box", viewerID])[0]
@@ -118,8 +121,8 @@ def loadPDFOptions():
             "tag": "btn",
             "parent": container,
             "attributes": {
-                "class": "pdf_selection",
-                "id": f"{"selected_pdf" if pdf in globals.selectedPDF else ""}",
+                "class": "list_selection_option",
+                "id": f"{"selected" if f'{globals.inputDirectory}/{pdf}' == globals.selectedPDF else ""}",
                 "onclick": f"setSelectedPDF('{globals.inputDirectory}/{pdf}')",
             },
             "content": pdf,
@@ -162,11 +165,43 @@ def printFile(path):
     
 
 # Load sorting dialog
+def setSelectedFolder(folderPath):
+    globals.selectedFolder = folderPath
+    toggleDialog("folder_management_dialog")
+def loadFolderOptions():
+    folders = [str(f) for f in os.listdir(globals.outputDirectory) if os.path.isdir(os.path.join(globals.outputDirectory, f))]
+    container = globals.transpiler.root.getChildrenBySelector(["nd", "folder_list"])[0]
+    
+    if container is None:
+        print("PDF selection container not found")
+        return
+    
+    container.deleteChildren()
+
+    for folder in folders:
+        elementData = {
+            "tag": "btn",
+            "parent": container,
+            "attributes": {
+                "class": "list_selection_option",
+                "id": f"{"selected" if f'{globals.outputDirectory}/{folder}' == globals.selectedFolder else ""}",
+                "onclick": f"setSelectedFolder('{globals.outputDirectory}/{folder}')",
+            },
+            "content": folder,
+        }
+        elem = globals.transpiler.createElement(elementData)
+        elem.parent.children.append(elem)
+        elem.load(container)
+        elem.widget.style = globals.window.style
+        elem.widget.setStyleSheet(globals.window.style)
+    globals.window.style = loadStyleSheet("style.qss")
+    globals.window.setStyleSheet(globals.window.style)
+
 def loadSortingDialog():
     toggleDialog("folder_management_dialog")
 
     # Create folder options
-    
+    loadFolderOptions()
 
     # Set details
     selPDFLbl = globals.transpiler.root.getChildrenBySelector(["lbl", "selected_pdf_detail"])[0]
