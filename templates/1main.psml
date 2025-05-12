@@ -1,10 +1,12 @@
 <node id="action_button_container" horizontal="true">
     <btn
         class="action_button"
+        id="choose_pdf_action_btn"
         expand="wh"
         onclick="(lambda: (toggleDialog('choose_pdf_dialog'), loadPDFOptions()))()">Kies PDF</btn>
     <btn
         class="action_button"
+        id="choose_folder_action_btn"
         expand="wh"
         onclick="(lambda: (toggleDialog('folder_management_dialog'), loadSortingDialog()))()">Sorteer PDF</btn>
 </node>

@@ -91,6 +91,13 @@ btn.action_button {
 btn.action_button:hover {
     background-color: --cta_hover;
 }
+btn.action_btn_red {
+    include(btn.action_button);
+    background-color: --cancel_red;
+}
+btn.action_btn_red:hover {
+    background-color: --hover_red;
+}
 
 box#pdf_viewer {
     size: (calc(vw - 40), calc(vh * 0.65 - 20));
@@ -159,26 +166,46 @@ btn.list_selection_option#selected {
 /* Folder management section */
 dialog#folder_management_dialog {
     background-color: --lavender;
-    size: (calc(vw // 2), vh);
+    size: (calc(vw // 2), calc(vh - tbh));
 }
 
 nd#folder_list {
     background-color: --lavender;
 }
+btn.folder_show_subs {
+    color: --light_black;
+    font-weight: 1000;
+    height: calc(vw // 40)px;
+    width: calc(vw // 40)px;
+    border-radius: 15px;
+}
+btn.folder_show_subs:hover {
+    color: --cta_color;
+    border: 2px solid --light_black;
+    background-color: --light_slate_gray;
+}
+btn.folder_selection_option {
+    include(btn.list_selection_option);
+    size: (calc(vw // 4), calc(vw // 40));
+}
+btn.folder_selection_option:hover { include(btn.list_selection_option:hover); }
+btn.folder_selection_option#selected { include(btn.list_selection_option#selected); }
 
 nd#folder_details_container {
-    alignment: top left;
 }
 box#selected_details_container {
 }
-box#new_folder_creation_container {
-}
 lbl.detail_header {
-    font-size: calc(vw // 50);
+    color: --light_black;
+    max-width: calc(vw // 4)px;
+    font-size: calc(vw // 55)px;
+    font-weight: 800;
 }
 lbl.detail_label {
-    margin: 0px;
-    padding: 0px;
-    color: red;
-    font-size: calc(vw // 40);
+    include(lbl.detail_header);
+    margin-bottom: calc(vh * 0.02)px;
+}
+
+box#new_folder_creation_container {
+    background-color: red;
 }

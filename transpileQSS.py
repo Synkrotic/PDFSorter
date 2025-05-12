@@ -16,12 +16,15 @@ def loadStyleSheet(filePath) -> None:
 
     # Set screen sizing in style
     screen = globals.app.primaryScreen()
-    screenGeometry = screen.availableGeometry()
-    screenWidth = screenGeometry.width()
-    screenHeight = screenGeometry.height()
+    screenGeometry = screen.geometry()
+    screenGeometryAvai = screen.availableGeometry()
+    screenWidth = screenGeometryAvai.width()
+    screenHeight = screenGeometryAvai.height()
+    taskbarHeight = screenGeometry.height() - screenHeight
 
     style = re.sub(r"vh", str(screenHeight), style)
     style = re.sub(r"vw", str(screenWidth), style)
+    style = re.sub(r"tbh", str(taskbarHeight), style)
     style = re.sub(r"calc\((.*?)\)", lambda m: str(round(eval(m.group(1)))), style)
 
 
@@ -40,6 +43,30 @@ def loadStyleSheet(filePath) -> None:
     for var_name, var_value in colour_vars.items():
         style = style.replace(var_name, var_value)
 
+
+    blocks = {}
+    pattern = re.compile(r'([^{\s]+)\s*\{([^}]+)\}', re.MULTILINE)
+    for selector, body in pattern.findall(style):
+        props = body.strip().split(';')
+        props = [p.strip() for p in props if p.strip()]
+        blocks[selector] = props
+
+    updated_css = ""
+    for selector, props in blocks.items():
+        new_props = []
+        for prop in props:
+            match = re.match(r'include\(([^)]+)\)', prop)
+            if match:
+                included_selector = match.group(1)
+                included_props = blocks.get(included_selector, [])
+                new_props.extend(included_props)
+            else:
+                new_props.append(prop)
+        updated_css += f"{selector} {{\n"
+        for p in new_props:
+            updated_css += f"    {p};\n"
+        updated_css += "}\n"
+    style = updated_css
 
 
     # Set positions
@@ -84,19 +111,19 @@ def loadStyleSheet(filePath) -> None:
             selector = match.group('selector')
             align = match.group('align').split(' ')
             align = [a.strip() for a in align if a.strip() and a in ["left", "right", "top", "bottom"]]
-            alignment = 0
+            alignment = []
             for a in align:
                 match a:
-                    case "top": alignment |= Qt.AlignTop
-                    case "bottom": alignment |= Qt.AlignBottom
-                    case "left": alignment |= Qt.AlignLeft
-                    case "right": alignment |= Qt.AlignRight
+                    case "top": alignment.append("Qt.AlignTop")
+                    case "bottom": alignment.append("Qt.AlignBottom")
+                    case "left": alignment.append("Qt.AlignLeft")
+                    case "right": alignment.append("Qt.AlignRight")
             splitter = "." if "." in selector else "#"
             elements = globals.transpiler.root.getChildrenBySelector(selector.split(splitter)[:2])
             for element in elements:
                 if element is not None:
-                    element.widget.layout().setAlignment(alignment)
-                    if globals.export: print(f"        {f"{element.parent.tag}_" if element.parent else ""}{element.tag}_{element.uuid}.setAlignment({alignment})")
+                    element.widget.layout().setAlignment(eval(" | ".join(alignment)))
+                    if globals.export: print(f"        {f"{element.parent.tag}_" if element.parent else ""}{element.tag}_{element.uuid}.setAlignment({" | ".join(alignment)})")
 
 
     # Use PSML Element names
@@ -107,7 +134,6 @@ def loadStyleSheet(filePath) -> None:
                 style = re.sub(pattern, w.__name__, style)
         else:
             style = re.sub(pattern, widget.__name__, style)
-
 
     # Make classes work
     classes = re.findall(r"\.(\w+)\s*{", style)

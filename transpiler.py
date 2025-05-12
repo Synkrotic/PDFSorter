@@ -141,6 +141,7 @@ class PSMLElement:
 
 
     def setAttributes(self):
+        self.widget.setObjectName("")
         for attr, value in self.attributes.items():
             if "id" in attr:
                 self.widget.setObjectName(value)
@@ -148,6 +149,7 @@ class PSMLElement:
 
             elif "onclick" in attr:
                 if isinstance(self.widget, QPushButton):
+                    print(self)
                     self.widget.clicked.connect(lambda: eval(value))
                     if globals.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.clicked.connect(lambda: {value.replace("'", '"')})")
 
@@ -188,6 +190,7 @@ class PSMLElement:
             return
 
         if "scrollable" in parent.attributes.keys() and not "f" in parent.attributes["scrollable"].lower():
+            parent.children.append(self)
             parent.container.layout().addWidget(self.widget)
             if globals.export: print(f"        {f"{parent.parent.tag}_" if parent.parent else ""}{parent.tag}_{parent.uuid}.container.addWidget({f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid})")
 

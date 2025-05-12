@@ -1,6 +1,9 @@
+import time
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import Qt, QTimer
 from transpileQSS import loadStyleSheet
+from functools import partial
+import pyautogui as pag
 import pymupdf, globals, os, platform, subprocess, threading
 
 
@@ -122,6 +125,7 @@ def loadPDFOptions():
             "parent": container,
             "attributes": {
                 "class": "list_selection_option",
+                "expand": "w",
                 "id": f"{"selected" if f'{globals.inputDirectory}/{pdf}' == globals.selectedPDF else ""}",
                 "onclick": f"setSelectedPDF('{globals.inputDirectory}/{pdf}')",
             },
@@ -138,6 +142,12 @@ def loadPDFOptions():
 def setSelectedPDF(pdfPath):
     globals.selectedPDF = pdfPath
     loadPDF("pdf_viewer", pdfPath)
+    
+    btn = globals.transpiler.root.getChildrenBySelector(["btn", "choose_pdf_action_btn"])[0]
+    btn.attributes["class"] = "action_button"
+    btn.widget.setProperty("class", "action_button")
+    btn.widget.setStyleSheet(globals.window.style)
+    
     dialog = globals.transpiler.root.getChildrenBySelector(["dialog", "choose_pdf_dialog"])[0]
     dialog.widget.accept()
 
@@ -162,46 +172,113 @@ def printFile(path):
     except Exception as e:
         print(f"Error printing file: {e}")
         return
+    time.sleep(5)
+    pag.hotkey('ctrl', 'p')
     
 
-# Load sorting dialog
-def setSelectedFolder(folderPath):
+# Sorting dialog
+def sortPDF():
+    if globals.selectedPDF == "":
+        btn = globals.transpiler.root.getChildrenBySelector(["btn", "choose_pdf_action_btn"])[0]
+        btn.attributes["class"] = "action_btn_red"
+        btn.widget.setProperty("class", "action_btn_red")
+        btn.widget.setStyleSheet(globals.window.style)
+
+    print("Sorting PDF...")
+    print(f"Selected PDF: {globals.selectedPDF}")
+    print(f"Selected Folder: {globals.selectedFolder}")
+
+def setSelectedFolder(folderPath, clickedFolder):
     globals.selectedFolder = folderPath
-    toggleDialog("folder_management_dialog")
-def loadFolderOptions():
-    folders = [str(f) for f in os.listdir(globals.outputDirectory) if os.path.isdir(os.path.join(globals.outputDirectory, f))]
-    container = globals.transpiler.root.getChildrenBySelector(["nd", "folder_list"])[0]
+
+    if clickedFolder.widget.objectName() == "selected":
+        toggleDialog("folder_management_dialog")
+        sortPDF()
+
+    for folder in globals.transpiler.root.getChildrenBySelector(["btn", "folder_selection_option"]):
+        if folder.widget.objectName() == "selected":
+            folder.widget.setObjectName("")
+            folder.widget.setStyleSheet(globals.window.style)
     
-    if container is None:
-        print("PDF selection container not found")
+    clickedFolder.widget.setObjectName("selected")
+    clickedFolder.widget.setStyleSheet(globals.window.style)
+    selFldrLbl = globals.transpiler.root.getChildrenBySelector(["lbl", "selected_folder_detail"])[0]
+    selFldrLbl.widget.setText(f"{globals.selectedFolder.split('/')[-1] if globals.selectedFolder else 'Geen map geselecteerd!'}")
+
+
+def loadFolderOptions(selector, subdir=""):
+    folders = [str(f) for f in os.listdir(f"{globals.outputDirectory}{f"/{subdir}" if subdir != "" else ""}") if os.path.isdir(os.path.join(globals.outputDirectory, f))]
+    wrapper = globals.transpiler.root.getChildrenBySelector(selector)[0]
+    
+    if wrapper is None:
+        print("PDF selection wrapper not found")
         return
     
-    container.deleteChildren()
+    wrapper.deleteChildren()
 
     for folder in folders:
-        elementData = {
-            "tag": "btn",
+        containerData = {
+            "tag": "cont",
+            "parent": wrapper,
+            "attributes": {
+                "class": "folder_selection_container",
+                "expand": "w",
+            },
+            "content": "",
+        }
+        container = globals.transpiler.createElement(containerData)
+        container.load(wrapper)
+
+        btnContainerData = {
+            "tag": "cont",
             "parent": container,
             "attributes": {
-                "class": "list_selection_option",
+                "expand": "w",
+                "horizontal": "true",
+            },
+            "content": "",
+        }
+        btnContainer = globals.transpiler.createElement(btnContainerData)
+        btnContainer.load(container)
+
+        if globals.subFoldersEnabled:
+            subFolders = [str(f) for f in os.listdir(f"{globals.outputDirectory}/{folder}") if os.path.isdir(os.path.join(globals.outputDirectory, folder, f))]
+            if subFolders != []:
+                showSubsBtnData = {
+                    "tag": "btn",
+                    "parent": btnContainer,
+                    "attributes": {
+                        "class": "folder_show_subs",
+                    },
+                    "content": "⮞",
+                }
+
+                showSubsBtn = globals.transpiler.createElement(showSubsBtnData)
+                showSubsBtn.load(container)
+                showSubsBtn.widget.clicked.connect(lambda: showSubsBtn.widget.setText("⮞" if showSubsBtn.widget.text() == "⮟" else "⮟"))
+
+        selBtnData = {
+            "tag": "btn",
+            "parent": btnContainer,
+            "attributes": {
+                "class": f"folder_selection_option",
                 "id": f"{"selected" if f'{globals.outputDirectory}/{folder}' == globals.selectedFolder else ""}",
-                "onclick": f"setSelectedFolder('{globals.outputDirectory}/{folder}')",
+                "expand": "w",
             },
             "content": folder,
         }
-        elem = globals.transpiler.createElement(elementData)
-        elem.parent.children.append(elem)
-        elem.load(container)
-        elem.widget.style = globals.window.style
-        elem.widget.setStyleSheet(globals.window.style)
-    globals.window.style = loadStyleSheet("style.qss")
-    globals.window.setStyleSheet(globals.window.style)
+        selBtn = globals.transpiler.createElement(selBtnData)
+        selBtn.load(container)
+        selBtn.widget.clicked.connect(partial(setSelectedFolder, f"{globals.outputDirectory}/{selBtn.content}", selBtn))
+        
+        container.widget.style = globals.window.style
+        container.widget.setStyleSheet(globals.window.style)
 
 def loadSortingDialog():
     toggleDialog("folder_management_dialog")
 
     # Create folder options
-    loadFolderOptions()
+    loadFolderOptions(["nd", "folder_list"])
 
     # Set details
     selPDFLbl = globals.transpiler.root.getChildrenBySelector(["lbl", "selected_pdf_detail"])[0]
