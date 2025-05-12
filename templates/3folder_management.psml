@@ -7,6 +7,12 @@
             <lbl class="detail_header">Geselecteerde PDF:</lbl>
             <lbl class="detail_label" id="selected_pdf_detail">{{ globals.selectedPDF }}</lbl>
         </box>
-        <box id="new_folder_creation_container" expand="wh"></box>
+        <box id="alteration_container" expand="wh">
+            <lbl class="detail_header">Nieuwe map:</lbl>
+            <node id="new_folder_container" expand="w" horizontal="true">
+                <input id="new_folder_name" expand="w"></input>
+                <btn id="create_folder" expand="wh" onclick="createFolder()">+</btn>
+            </node>
+        </box>
     </nd>
 </dialog>

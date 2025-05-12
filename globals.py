@@ -14,7 +14,7 @@ window = None
 # Config
 export = False
 fullscreen = False
-subFoldersEnabled = True
+allowSubFolders = True
 
 selectedPDF = ""
 selectedFolder = ""

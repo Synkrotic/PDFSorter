@@ -149,7 +149,6 @@ class PSMLElement:
 
             elif "onclick" in attr:
                 if isinstance(self.widget, QPushButton):
-                    print(self)
                     self.widget.clicked.connect(lambda: eval(value))
                     if globals.export: print(f"        {f"{self.parent.tag}_" if self.parent else ""}{self.tag}_{self.uuid}.clicked.connect(lambda: {value.replace("'", '"')})")
 

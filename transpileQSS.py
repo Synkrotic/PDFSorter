@@ -116,6 +116,7 @@ def loadStyleSheet(filePath) -> None:
                 match a:
                     case "top": alignment.append("Qt.AlignTop")
                     case "bottom": alignment.append("Qt.AlignBottom")
+                    case "center": alignment.append("Qt.AlignCenter")
                     case "left": alignment.append("Qt.AlignLeft")
                     case "right": alignment.append("Qt.AlignRight")
             splitter = "." if "." in selector else "#"

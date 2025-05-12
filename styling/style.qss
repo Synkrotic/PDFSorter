@@ -11,9 +11,9 @@
 --cta_hover: #335577;
 
 --action_green: #4caf50;
---hover_green: #3e9042;
+--hover_green: #0a2a0c;
 --medium_yellow: #c4b000;
---hover_yellow: #ff636100;
+--hover_yellow:rgb(121, 109, 2);
 --cancel_red: #f44336;
 --hover_red: #c62828;
 
@@ -186,15 +186,11 @@ btn.folder_show_subs:hover {
 }
 btn.folder_selection_option {
     include(btn.list_selection_option);
-    size: (calc(vw // 4), calc(vw // 40));
+    size: (calc(vw // 4), calc(vw // 35));
 }
 btn.folder_selection_option:hover { include(btn.list_selection_option:hover); }
 btn.folder_selection_option#selected { include(btn.list_selection_option#selected); }
 
-nd#folder_details_container {
-}
-box#selected_details_container {
-}
 lbl.detail_header {
     color: --light_black;
     max-width: calc(vw // 4)px;
@@ -206,6 +202,31 @@ lbl.detail_label {
     margin-bottom: calc(vh * 0.02)px;
 }
 
-box#new_folder_creation_container {
-    background-color: red;
+box#alteration_container {
+    alignment: center left;
+}
+input#new_folder_name {
+    background-color: --lavender;
+    color: --light_black;
+    border: 2px solid --light_black;
+    font-size: calc(vw // 55)px;
+    height: calc(vw // 40)px;
+    width: calc(vw // 5);
+    border-radius: 10px;
+}
+btn#create_folder {
+    height: calc(vw // 40)px;
+    width: calc(vw // 40)px;
+    border: 2px solid --light_black;
+    font-size: calc(vw // 55)px;
+    font-weight: 1000;
+    text-align: center;
+    vertical-align: middle;
+    color: --light_black;
+    border-radius: 15px;
+}
+btn#create_folder:hover {
+    background-color: --action_green;
+    border: 2px solid --hover_green;
+    color: --hover_green;
 }

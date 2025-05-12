@@ -10,9 +10,12 @@ class Window(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PDF Sorter")
+        self.setObjectName("main_window")
+        self.screen = globals.app.primaryScreen()
+        self.screenGeometry = self.screen.geometry()
         self.centerWindow()
         self.fullscreenWindow()
-        self.setObjectName("main_window")
+
         globals.transpiler = Transpiler()
 
         pageText = ""
@@ -35,17 +38,13 @@ class Window(QWidget):
 
 
     def centerWindow(self):
-        screen = globals.app.primaryScreen()
-        screenGeometry = screen.geometry()
-        x = (screenGeometry.width() - self.width()) // 2
-        y = (screenGeometry.height() - self.height()) // 2
+        x = (self.screenGeometry.width() - self.width()) // 2
+        y = (self.screenGeometry.height() - self.height()) // 2
         self.move(x, y)
 
 
     def fullscreenWindow(self):
-        screen = globals.app.primaryScreen()
-        screenGeometry = screen.geometry()
-        self.setGeometry(screenGeometry)
+        self.setGeometry(self.screenGeometry)
         if globals.fullscreen: self.showFullScreen()
 
     
