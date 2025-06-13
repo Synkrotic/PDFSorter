@@ -1,11 +1,9 @@
-import shutil
-import time
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import QFileDialog
 from transpileQSS import loadStyleSheet
 from functools import partial
-import pyautogui as pag
-import pymupdf, globals, os, platform, subprocess, threading
+import pymupdf, globals, os, platform, subprocess, threading, shutil, time, pyautogui as pag
 
 
 
@@ -386,3 +384,47 @@ def createFolder():
 
 
 # Config
+def pickFolder(title):
+    folder = QFileDialog.getExistingDirectory(
+        None, title, "", QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+    )
+    return folder
+
+def pickInput():
+    folder = pickFolder("Kies een invoer map")
+    input = globals.transpiler.root.getChildrenBySelector(["input", "input_input"])[0]
+    input.widget.setText(folder)
+
+def pickOutput():
+    folder = pickFolder("Kies een uitvoer map")
+    input = globals.transpiler.root.getChildrenBySelector(["input", "output_input"])[0]
+    input.widget.setText(folder)
+
+def loadConfig():
+    dialog = globals.transpiler.root.getChildrenBySelector(["dialog", "config_dialog"])[0]
+    inputElem = dialog.getChildrenBySelector(["input", "input_input"])[0]
+    outputElem = dialog.getChildrenBySelector(["input", "output_input"])[0]
+    fullscreenElem = dialog.getChildrenBySelector(["checkbox", "check_fullscreen"])[0]
+    subfolderElem = dialog.getChildrenBySelector(["checkbox", "check_subfolders"])[0]
+
+    inputElem.widget.setText(globals.inputDirectory)
+    outputElem.widget.setText(globals.outputDirectory)
+    fullscreenElem.widget.setChecked(globals.fullscreen)
+    subfolderElem.widget.setChecked(globals.allowSubFolders)
+
+def saveConfig():
+    dialog = globals.transpiler.root.getChildrenBySelector(["dialog", "config_dialog"])[0]
+    inputElem = dialog.getChildrenBySelector(["input", "input_input"])[0]
+    outputElem = dialog.getChildrenBySelector(["input", "output_input"])[0]
+    fullscreenElem = dialog.getChildrenBySelector(["checkbox", "check_fullscreen"])[0]
+    subfolderElem = dialog.getChildrenBySelector(["checkbox", "check_subfolders"])[0]
+
+    globals.config.set("Settings", "inputdirectory", inputElem.widget.text())
+    globals.config.set("Settings", "outputdirectory", outputElem.widget.text())
+    globals.config.set("Settings", "fullscreen", str(fullscreenElem.widget.isChecked()))
+    globals.config.set("Settings", "allowsubfolders", str(subfolderElem.widget.isChecked()))
+
+    with open("config.cfg", "w") as configFile:
+        globals.config.write(configFile)
+    globals.reload()
+    dialog.widget.accept()

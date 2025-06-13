@@ -205,7 +205,7 @@ lbl.detail_label {
 box#alteration_container {
     alignment: center left;
 }
-input#new_folder_name {
+input.default_input {
     background-color: --lavender;
     color: --light_black;
     border: 2px solid --light_black;
@@ -213,6 +213,9 @@ input#new_folder_name {
     height: calc(vw // 40)px;
     width: calc(vw // 5);
     border-radius: 10px;
+}
+input#new_folder_name {
+    include(input.default_input);
 }
 btn#create_folder {
     height: calc(vw // 40)px;
@@ -229,4 +232,55 @@ btn#create_folder:hover {
     background-color: --action_green;
     border: 2px solid --hover_green;
     color: --hover_green;
+}
+
+
+
+
+
+
+
+
+
+
+dialog#config_dialog {
+    background-color: --lavender;
+    size: (calc(vw // 2), calc(vh - tbh));
+    alignment: top left;
+}
+lbl.config_label {
+    include(lbl.detail_header);
+    font-size: calc(vw // 50)px;
+}
+btn.config_action_button {
+    include(btn#create_folder);
+    width: calc(vw // 12);
+    font-size: calc(vw // 80)px;
+    background-color: --cta_color;
+    color: --white;
+    font-weight: 600;
+}
+btn.config_action_button:hover {
+    background-color: --cta_hover;
+}
+checkbox::indicator {
+    height: calc(vw // 50);
+    width: calc(vw // 50);
+    background-color: --cancel_red;
+    border-radius: 5px;
+    image: url(./media/cancel.svg);
+}
+checkbox::indicator:checked {
+    background-color: --action_green;
+    image: url(./media/check.svg);
+}
+btn#config_save {
+    include(btn#create_folder);
+    background-color: --action_green;
+    height: calc(vh // 16);
+    color: --white;
+    font-weight: 600;
+}
+btn#config_save:hover {
+    background-color: --hover_green;
 }

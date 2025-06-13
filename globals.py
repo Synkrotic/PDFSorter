@@ -1,25 +1,33 @@
 from PySide6.QtWidgets import QApplication
-import sys
+import sys, configparser
 
 app = QApplication(sys.argv)
 transpiler = None
 window = None
 
-
-
-
-
+config = configparser.ConfigParser()
+config.read("config.cfg")
 
 
 # Config
-export = False
-fullscreen = False
-allowSubFolders = True
+export = config.getboolean("Settings", "export")
+fullscreen = config.getboolean("Settings", "fullscreen")
+allowSubFolders = config.getboolean("Settings", "allowSubFolders")
 
-selectedPDF = ""
-selectedFolder = ""
+selectedPDF = config.get("Settings", "selectedPDF")
+selectedFolder = config.get("Settings", "selectedFolder")
 
-# inputDirectory = "/home/ubuntu/Downloads"
-inputDirectory = "C:/Users/janne/Downloads"
-# outputDirectory = "/home/ubuntu/Documents/PDF_Sorter_Output"
-outputDirectory = "C:/Users/janne/Documents/PDF_Sorter_Output"
+inputDirectory = config.get("Settings", "inputDirectory")
+outputDirectory = config.get("Settings", "outputDirectory")
+
+def reload():
+  global export, fullscreen, allowSubFolders, selectedPDF, selectedFolder, inputDirectory, outputDirectory
+  export = config.getboolean("Settings", "export")
+  fullscreen = config.getboolean("Settings", "fullscreen")
+  allowSubFolders = config.getboolean("Settings", "allowSubFolders")
+
+  selectedPDF = config.get("Settings", "selectedPDF")
+  selectedFolder = config.get("Settings", "selectedFolder")
+
+  inputDirectory = config.get("Settings", "inputDirectory")
+  outputDirectory = config.get("Settings", "outputDirectory")

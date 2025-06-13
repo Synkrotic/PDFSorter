@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QDialog, QLineEdit
+from PySide6.QtWidgets import QCheckBox, QWidget, QPushButton, QLabel, QDialog, QLineEdit
 
 
 
@@ -27,4 +27,7 @@ psml_widgets = {
     "inputField": QLineEdit,
     "entry": QLineEdit,
     "entryField": QLineEdit,
+
+    "checkbox": QCheckBox,
+    "spacing": QWidget,
 }

@@ -51,4 +51,24 @@
 		"prefix": "popup",
 		"body": "<popup>$1</popup>"
 	},
+	"Input element": {
+		"prefix": "input",
+		"body": "<input>$1</input>"
+	},
+	"InputField element": {
+		"prefix": "inputField",
+		"body": "<inputField>$1</inputField>"
+	},
+	"Entry element": {
+		"prefix": "entry",
+		"body": "<entry>$1</entry>"
+	},
+	"EntryField element": {
+		"prefix": "entryField",
+		"body": "<entryField>$1</entryField>"
+	},
+	"Checkbox element": {
+		"prefix": "checkbox",
+		"body": "<checkbox>$1</checkbox>"
+	}
 }

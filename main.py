@@ -37,6 +37,11 @@ class Window(QWidget):
         self.setStyling()
 
 
+    def reload(self):
+        self.centerWindow()
+        self.fullscreenWindow()
+        
+
     def centerWindow(self):
         x = (self.screenGeometry.width() - self.width()) // 2
         y = (self.screenGeometry.height() - self.height()) // 2

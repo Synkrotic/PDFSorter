@@ -329,7 +329,11 @@ class Transpiler:
 
         except ET.ParseError:
             page: str = '<root>' + mainPage + "</root>"
-            root_et = ET.fromstring(page)
+            try:
+                root_et = ET.fromstring(page)
+            except Exception as e:
+                print(f"Error parsing XML: {e}")
+                print(page)
         self.root = root_et
         
         self.generatePSElements(self.root)

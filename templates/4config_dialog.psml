@@ -1,0 +1,35 @@
+<dialog id="config_dialog" title="Configuration">
+  <nd expand="w">
+    <lbl class="config_label">Invoer map:</lbl>
+    <cont expand="w" horizontal="true">
+      <input class="default_input" id="input_input" expand="w" ></input>
+      <btn class="config_action_button" onclick="pickInput()">Kies map</btn>
+    </cont>
+
+    <lbl class="config_label">Uitvoer map:</lbl>
+    <cont expand="w" horizontal="true">
+      <input class="default_input" id="output_input" expand="w" ></input>
+      <btn class="config_action_button" onclick="pickOutput()">Kies map</btn>
+    </cont>
+
+    <cont horizontal="true">
+      <lbl class="config_label">Fullscreen:</lbl>
+      <checkbox class="config_checkbox" id="check_fullscreen"></checkbox>
+    </cont>
+    
+    <cont horizontal="true">
+      <lbl class="config_label">Sta submappen toe:</lbl>
+      <checkbox class="config_checkbox" id="check_subfolders"></checkbox>
+    </cont>
+  </nd>
+
+  <spacing
+    expand="wh"
+  ></spacing>
+
+  <btn
+    expand="w"
+    id="config_save"
+    onclick="saveConfig()"
+  >Opslaan</btn>
+</dialog>
